@@ -136,5 +136,43 @@ namespace PracticaBiblioteca.Controllers
             return libros;
         }
 
+
+        //
+        [HttpGet("librosMasRecientes")]
+        public async Task<ActionResult<IEnumerable<Libro>>> GetLibrosMasRecientes()
+        {
+            var librosRecientes = await _context.Libros
+                                                 .OrderByDescending(l => l.AñoPublicacion)
+                                                 .Take(5) 
+                                                 .ToListAsync();
+
+            return librosRecientes;
+        }
+
+        //
+        [HttpGet("cantidadLibrosPorAnio")]
+        public async Task<ActionResult<IEnumerable<object>>> GetCantidadLibrosPorAnio()
+        {
+            var cantidadPorAnio = await _context.Libros
+                                                 .GroupBy(l => l.AñoPublicacion)
+                                                 .Select(g => new
+                                                 {
+                                                     Año = g.Key,
+                                                     Cantidad = g.Count()
+                                                 })
+                                                 .OrderByDescending(a => a.Año)
+                                                 .ToListAsync();
+
+            return cantidadPorAnio;
+        }
+
+        
+        //
+        [HttpGet("{id}/tieneLibros")]
+        public async Task<ActionResult<bool>> VerificarAutorTieneLibros(int id)
+        {
+            var tieneLibros = await _context.Libros.AnyAsync(l => l.AutorId == id);
+            return tieneLibros;
+        }
     }
 }

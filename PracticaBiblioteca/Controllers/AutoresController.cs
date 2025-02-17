@@ -95,5 +95,28 @@ namespace PracticaBiblioteca.Controllers
             return NoContent();
         }
 
+
+        //
+        [HttpGet("autoresConMasLibros")]
+        public async Task<ActionResult<IEnumerable<object>>> GetAutoresConMasLibros()
+        {
+            var autores = await _context.Libros
+                                         .GroupBy(l => l.AutorId)
+                                         .Select(g => new
+                                         {
+                                             AutorId = g.Key,
+                                             NombreAutor = _context.Autores.Where(a => a.Id == g.Key).Select(a => a.Nombre).FirstOrDefault(),
+                                             CantidadLibros = g.Count()
+                                         })
+                                         .OrderByDescending(a => a.CantidadLibros)
+                                         .ToListAsync();
+
+            return autores;
+        }
+
+
+        //
+
+
     }
 }
